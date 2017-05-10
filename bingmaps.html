@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Bing Maps Practice</title>
+	<style>
+		#Content {
+			margin-bottom: 10px;
+		}
+	</style>
+	<script>
+		window.onload = init;
+		
+		var map;
+		
+		function init(){
+			loadMapScenario();
+			map.onmouseup = printInfo();
+		}
+	
+		function loadMapScenario() {
+			map = new Microsoft.Maps.Map(document.getElementById('myMap'), {
+				credentials: 'y7SZBP21wKo65lBDPlws~HAiXZ226YEBQTxYMbCKUCw~AgYdjoumaTtW8ZZH-xz2x16G5PXiGttwQgZT6glN1rjBILJVUJ02wR6b4pL9-4fu'
+			});
+		}
+		
+		function printInfo(){
+            console.log('<b>Map center</b> <br>' + map.getCenter() + '<br>');
+            console.log('<b>Map bounds</b> <br>' + map.getBounds() + '<br>');
+            console.log('<b>Map type id</b> <br>' + map.getMapTypeId() + '<br>');
+            console.log('<b>Map zoom level</b> <br>' + map.getZoom() + '<br>');
+		}
+	</script>
+	<script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?callback=loadMapScenario' async defer></script>
+</head>
+
+<body>
+	<div id='printoutPanel'></div>
+	 <div id="Content"><h1>Theatre Finder</h1>
+	What is your ZIP Code? --&gt; <input id="searchterm" type="text" size="5" maxlength="20" autofocus value="14623" /> 
+	<button type="button" id="search">Get Theatres<br /></button></div>
+    <div id='myMap' style='width: 99vw; height: 87.5vh;'></div>
+</body>
+
+</html>
