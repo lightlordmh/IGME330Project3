@@ -26,7 +26,7 @@
 		var navigationBarMode;
 		var value;
 		var value2;
-		var GAS_URL = "http://api.mygasfeed.com/";
+		var GAS_URL = "http://api.mygasfeed.com/stations/radius/";
 		var GAS_API_KEY = "7ghfjf56rn";
 		var dist;
 		var gastype;
@@ -57,8 +57,49 @@
 		}
 	
 		function getData(){
-			var url = GAS_URL;
+			map.entities.clear();
+			var pushpins = {};
+			var xhr = new XMLHttpRequest();
+			xhr.onload = function(){
+				// JSON.parse() converts a string to JSON.
+ 				var myJSON = JSON.parse( xhr.responseText );
+				var gasStations = myJSON.stations;
+				//array of points
+				for(var i=0;i<gasStations.length;i++){
+					var station = gasStations[i];
+					//logic to get all information 
+					var pushpin = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(station.lat,station.lng));
+					pushpins.push(pushpin);
+				}	
+				var infobox = new Microsoft.Maps.Infobox(pushpins[0].getLocation(), { visible: false });
+				infobox.setMap(map);
+				for (var i = 0; i < pushpins.length; i++) {
+					var pushpin = pushpins[i];
+					var station = gasStations[i];
+					//Store some metadata with the pushpin
+					pushpin.metadata = {
+						title: station.station,
+						description: "Address: " + station.address + "<br> Distance: " + station.distance + "<br> Regular Price: " + station.reg_price + "<br> Diesel Price: " + station.diesel_price
+					};
+					Microsoft.Maps.Events.addHandler(pushpin, 'click', function (args) {
+						infobox.setOptions({
+							location: args.target.getLocation(),
+							title: args.target.metadata.title,
+							description: args.target.metadata.description,
+							visible: true
+						});
+					});
+				}
+			}
 			
+			var url = GAS_URL + latitude +"/"+ longitude +"/"+ dist +"/"+ gastype +"/distance/" + GAS_API_KEY + ".json";
+			xhr.open('GET',url,true);
+			// try to prevent browser caching by sending a header to the server
+			xhr.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2010 00:00:00 GMT");
+			xhr.send();
+
+			//add all pushpins to the map
+			map.entities.push(pushpins);
 
 			value = document.querySelector("#searchterm").value;
 			value = value.trim();
