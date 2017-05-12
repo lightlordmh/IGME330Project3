@@ -6,8 +6,13 @@
 	<meta charset="utf-8">
 	<title>Bing Maps Practice</title>
 	<style>
+		h1 {
+			margin-bottom: 5px;
+			margin-top: 5px;
+		}
 		#Content {
-			margin-bottom: 10px;
+			margin-bottom: 2px;
+			z-index: 1;
 		}
 		
 		#search {
@@ -16,7 +21,10 @@
 		
 		#zoomDrop {
 			display: block;
-			margin-bottom: 10px;
+			margin-bottom: 5px;
+		}
+		#myMap{
+			z-index: 0;
 		}
 	</style>
 	<script>
@@ -30,6 +38,8 @@
 		var GAS_API_KEY = "7ghfjf56rn";
 		var dist;
 		var gastype;
+		var longitude;
+		var latitude;
 
 		
 		function init(){
@@ -40,7 +50,16 @@
 			document.querySelector("#search").onclick = getData;
 			document.querySelector("#zoomChooser").onchange = changeZoom;
 			document.querySelector("#gastypeChooser").onchange = changeGas;
-			//document.onclick = printInfo;
+			var ctr = map.getCenter();
+			latitude = map.getCenter().latitude;
+			longitude = map.getCenter().longitude;
+			document.onclick = updateLoc;
+		}
+		
+		function updateLoc(){
+			latitude = map.getCenter().latitude;
+			longitude = map.getCenter().longitude;
+			printInfo();
 		}
 	
 		function changeGas(){
@@ -106,9 +125,6 @@
 			if(value.length < 1) return;
 			//console.log(value);
 			dist = document.querySelector("#searchterm2").value;
-			dist = dist.trim();
-			if(dist.length < 1) return;
-			console.log(dist);
 			Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
 			var searchManager = new Microsoft.Maps.Search.SearchManager(map);
 			var requestOptions = {
@@ -120,6 +136,14 @@
 				}
 			};
 			searchManager.geocode(requestOptions);
+			if (isNaN(dist) || parseInt(dist) < 0){
+				return;
+			}
+			dist = dist.trim();
+			if(dist.length < 1) return;
+			console.log(dist);
+			latitude = map.getCenter().latitude;
+			longitude = map.getCenter().longitude;
 			});
 		}
 	
@@ -133,9 +157,11 @@
 		
 		function printInfo(){
             console.log('Map center: ' + map.getCenter());
-            console.log('Map bounds: ' + map.getBounds());
-            console.log('Map type id: ' + map.getMapTypeId());
-            console.log('Map zoom level: ' + map.getZoom());
+            //console.log('Map bounds: ' + map.getBounds());
+            //console.log('Map type id: ' + map.getMapTypeId());
+            //console.log('Map zoom level: ' + map.getZoom());
+			console.log('Map latitude: ' +latitude);
+			console.log('Map longitude: ' +longitude);
 		}
 	</script>
 	<script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?callback=loadMapScenario' async defer></script>
