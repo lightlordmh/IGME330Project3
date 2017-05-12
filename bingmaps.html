@@ -45,7 +45,7 @@
 		function init(){
 			value = "Rochester";
 			dist = 5;
-			gastype = "reg_price";
+			gastype = "reg";
 			loadMapScenario();
 			document.querySelector("#search").onclick = getData;
 			document.querySelector("#zoomChooser").onchange = changeZoom;
@@ -91,7 +91,7 @@
 	
 		function getData(){
 			map.entities.clear();
-			var pushpins = {};
+			var pushpins = [];
 			var xhr = new XMLHttpRequest();
 			xhr.onload = function(){
 
@@ -113,27 +113,27 @@
 					var gasPhrase;
 					var gasPrice;
 					switch(gastype){
-						case "reg_price":
-							gasPhrase = "<br>Regular Price: ";
+						case "reg":
+							gasPhrase = "<br>Regular Price: $";
 							gasPrice = station.reg_price;
 						break;
-						case "med_price":
-							gasPhrase = "<br>Medium Price: ";
+						case "med":
+							gasPhrase = "<br>Medium Price: $";
 							gasPrice = station.mid_price;
 						break;
-						case "pre_price":
-							gasPhrase = "<br>Premium Price: ";
+						case "pre":
+							gasPhrase = "<br>Premium Price: $";
 							gasPrice = station.pre_price;
 						break;
-						case "diesel_price":
-							gasPhrase = "<br>Diesel Price: ";
+						case "diesel":
+							gasPhrase = "<br>Diesel Price: $";
 							gasPrice = station.diesel_price;
 						break;
 					}
 					//Store some metadata with the pushpin
 					pushpin.metadata = {
 						title: station.station,
-						description: "Address: " + station.address + "<br> Distance: " + station.distance + gasPhrase + gasPrice + "<br> Diesel Price: " + station.diesel_price
+						description: "Address: " + station.address + "<br> Distance: " + station.distance + gasPhrase + gasPrice 
 					};
 					Microsoft.Maps.Events.addHandler(pushpin, 'click', function (args) {
 						infobox.setOptions({
@@ -144,16 +144,11 @@
 						});
 					});
 				}
+				//add all pushpins to the map
+		
+				map.entities.push(pushpins);
 			}
-			
-			var url = GAS_URL + latitude +"/"+ longitude +"/"+ dist +"/"+ gastype +"/distance/" + GAS_API_KEY + ".json";
-			xhr.open('GET',url,true);
-			// try to prevent browser caching by sending a header to the server
-			xhr.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2010 00:00:00 GMT");
-			xhr.send();
 
-			//add all pushpins to the map
-			
 
 			value = document.querySelector("#searchterm").value;
 			value = value.trim();
@@ -161,29 +156,35 @@
 			//console.log(value);
 			dist = document.querySelector("#searchterm2").value;
 			Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
-			var searchManager = new Microsoft.Maps.Search.SearchManager(map);
-			var requestOptions = {
-				bounds: map.getBounds(),
-				where: value,
-				callback: function (answer, userData) {
-					map.setView({ bounds: answer.results[0].bestView });
-					//map.entities.push(new Microsoft.Maps.Pushpin(answer.results[0].location));
+				var searchManager = new Microsoft.Maps.Search.SearchManager(map);
+				var requestOptions = {
+					bounds: map.getBounds(),
+					where: value,
+					callback: function (answer, userData) {
+						map.setView({ bounds: answer.results[0].bestView });
+						//map.entities.push(new Microsoft.Maps.Pushpin(answer.results[0].location));
+					}
+				};
+				searchManager.geocode(requestOptions);
+				if (isNaN(dist) || parseInt(dist) < 0){
+					return;
 				}
-			};
-			searchManager.geocode(requestOptions);
-			if (isNaN(dist) || parseInt(dist) < 0){
-				return;
-			}
-			dist = dist.trim();
-			if(dist.length < 1) return;
-			console.log(dist);
-			latitude = map.getCenter().latitude;
-			longitude = map.getCenter().longitude;
-			localStorage.setItem("lastplace", value);
-			localStorage.setItem("lastdist", dist);
-			updateLoc();
-			map.entities.push(pushpins);
+				dist = dist.trim();
+				if(dist.length < 1) return;
+				console.log(dist);
+				latitude = map.getCenter().latitude;
+				longitude = map.getCenter().longitude;
+				localStorage.setItem("lastplace", value);
+				localStorage.setItem("lastdist", dist);
+				updateLoc();
 			});
+			var url = GAS_URL + latitude  +"/"+ longitude +"/"+ dist +"/"+ gastype +"/distance/" + GAS_API_KEY + ".json";
+			console.log(url);
+			xhr.open('GET',url,true);
+			// try to prevent browser caching by sending a header to the server
+			//xhr.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2010 00:00:00 GMT");
+			xhr.send();
+
 		}
 	
 		function loadMapScenario() {
@@ -218,10 +219,10 @@
 	<div id="gastypeDrop" class="dropdown-content">
 	<label>Gas Type:
 			<select id="gastypeChooser">
-				<option value="reg_price">Regular</option>
-				<option value="mid_price">MID</option>
-				<option value="pre_price">PRE</option>
-				<option value="diesel_price">Diesel</option>
+				<option value="reg">Regular</option>
+				<option value="mid">MID</option>
+				<option value="pre">PRE</option>
+				<option value="diesel">Diesel</option>
     		</select>
     	</label>
 	</div>
