@@ -50,6 +50,18 @@
 			document.querySelector("#search").onclick = getData;
 			document.querySelector("#zoomChooser").onchange = changeZoom;
 			document.querySelector("#gastypeChooser").onchange = changeGas;
+			if (localStorage.getItem("lastplace")){
+				document.querySelector("#searchterm").value = localStorage.getItem("lastplace");
+				if (localStorage.getItem("lastlat") && localStorage.getItem("lastlong")){
+				console.log("Set new center!");
+				map.setView({
+					center: new Microsoft.Maps.Location(localStorage.getItem("lastlat"), localStorage.getItem("lastlong")),
+					zoom: 7
+				})}
+			}
+			if (localStorage.getItem("lastdist")){
+				document.querySelector("#searchterm2").value = localStorage.getItem("lastdist");
+			}
 			var ctr = map.getCenter();
 			latitude = map.getCenter().latitude;
 			longitude = map.getCenter().longitude;
@@ -59,6 +71,8 @@
 		function updateLoc(){
 			latitude = map.getCenter().latitude;
 			longitude = map.getCenter().longitude;
+			localStorage.setItem("lastlat",  latitude);
+			localStorage.setItem("lastlong",  longitude);
 			printInfo();
 		}
 	
@@ -103,6 +117,9 @@
 			console.log(dist);
 			latitude = map.getCenter().latitude;
 			longitude = map.getCenter().longitude;
+			localStorage.setItem("lastplace", value);
+			localStorage.setItem("lastdist", dist);
+			updateLoc();
 			});
 		}
 	
@@ -121,6 +138,10 @@
             //console.log('Map zoom level: ' + map.getZoom());
 			console.log('Map latitude: ' +latitude);
 			console.log('Map longitude: ' +longitude);
+			console.log(localStorage.getItem("lastplace"));
+			console.log(localStorage.getItem("lastdist"));
+			console.log(localStorage.getItem("lastlat"));
+			console.log(localStorage.getItem("lastlong"));
 		}
 	</script>
 	<script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?callback=loadMapScenario' async defer></script>
