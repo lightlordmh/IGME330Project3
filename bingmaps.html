@@ -34,10 +34,16 @@
 		var navigationBarMode;
 		var value;
 		var value2;
+		var GAS_URL = "http://api.mygasfeed.com/";
+		var GAS_API_KEY = "7ghfjf56rn";
 		var dist;
 		var gastype;
+<<<<<<< HEAD
 		var longitude;
 		var latitude;
+=======
+
+>>>>>>> a3d340749fb9c0d98606035f08758c1957d4b9e7
 		
 		function init(){
 			value = "Rochester";
@@ -73,6 +79,9 @@
 		}
 	
 		function getData(){
+			var url = GAS_URL;
+			
+
 			value = document.querySelector("#searchterm").value;
 			value = value.trim();
 			if(value.length < 1) return;
