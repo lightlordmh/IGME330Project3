@@ -28,15 +28,26 @@
 		var value2;
 		var GAS_URL = "http://api.mygasfeed.com/";
 		var GAS_API_KEY = "7ghfjf56rn";
+		var dist;
+		var gastype;
+
 		
 		function init(){
 			value = "Rochester";
+			dist = 5;
+			gastype = "reg_price";
 			loadMapScenario();
 			document.querySelector("#search").onclick = getData;
 			document.querySelector("#zoomChooser").onchange = changeZoom;
+			document.querySelector("#gastypeChooser").onchange = changeGas;
 			//document.onclick = printInfo;
 		}
 	
+		function changeGas(){
+			gastype = document.querySelector("#gastypeChooser").value;
+			console.log(gastype);
+		}
+		
 		function changeZoom(){
 			value2 = document.querySelector("#zoomChooser").value;
 			console.log(value2);
@@ -53,6 +64,10 @@
 			value = value.trim();
 			if(value.length < 1) return;
 			//console.log(value);
+			dist = document.querySelector("#searchterm2").value;
+			dist = dist.trim();
+			if(dist.length < 1) return;
+			console.log(dist);
 			Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
 			var searchManager = new Microsoft.Maps.Search.SearchManager(map);
 			var requestOptions = {
@@ -88,7 +103,18 @@
 <body>
 	<div id='printoutPanel'></div>
 	 <div id="Content"><h1>Gas Station Finder</h1>
-	What is your city? --&gt; <input id="searchterm" type="text" size="20" maxlength="30" autofocus value="Rochester" /> 
+	Around what location? <input id="searchterm" type="text" size="20" maxlength="30" autofocus value="Rochester" /> 
+	Within how many miles? <input id="searchterm2" type="text" size="5" maxlength="10" autofocus value="5" /> 
+	<div id="gastypeDrop" class="dropdown-content">
+	<label>Gas Type:
+			<select id="gastypeChooser">
+				<option value="reg_price">Regular</option>
+				<option value="mid_price">MID</option>
+				<option value="pre_price">PRE</option>
+				<option value="diesel_price">Diesel</option>
+    		</select>
+    	</label>
+	</div>
 	<button type="button" id="search">Get Gas<br /></button></div>
 	<div class="dropdown">
   <div id="zoomDrop" class="dropdown-content">
@@ -101,7 +127,7 @@
     		</select>
     	</label>
 	</div>
-    <div id='myMap' style='width: 99vw; height: 87.5vh;'></div>
+    <div id='myMap' style='width: 99vw; height: 84.8vh;'></div>
 </body>
 
 </html>
