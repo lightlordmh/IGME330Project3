@@ -80,6 +80,7 @@
 			var pushpins = {};
 			var xhr = new XMLHttpRequest();
 			xhr.onload = function(){
+
 				// JSON.parse() converts a string to JSON.
  				var myJSON = JSON.parse( xhr.responseText );
 				var gasStations = myJSON.stations;
@@ -95,10 +96,30 @@
 				for (var i = 0; i < pushpins.length; i++) {
 					var pushpin = pushpins[i];
 					var station = gasStations[i];
+					var gasPhrase;
+					var gasPrice;
+					switch(gastype){
+						case "reg_price":
+							gasPhrase = "<br>Regular Price: ";
+							gasPrice = station.reg_price;
+						break;
+						case "med_price":
+							gasPhrase = "<br>Medium Price: ";
+							gasPrice = station.mid_price;
+						break;
+						case "pre_price":
+							gasPhrase = "<br>Premium Price: ";
+							gasPrice = station.pre_price;
+						break;
+						case "diesel_price":
+							gasPhrase = "<br>Diesel Price: ";
+							gasPrice = station.diesel_price;
+						break;
+					}
 					//Store some metadata with the pushpin
 					pushpin.metadata = {
 						title: station.station,
-						description: "Address: " + station.address + "<br> Distance: " + station.distance + "<br> Regular Price: " + station.reg_price + "<br> Diesel Price: " + station.diesel_price
+						description: "Address: " + station.address + "<br> Distance: " + station.distance + gasPhrase + gasPrice + "<br> Diesel Price: " + station.diesel_price
 					};
 					Microsoft.Maps.Events.addHandler(pushpin, 'click', function (args) {
 						infobox.setOptions({
