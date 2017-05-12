@@ -26,6 +26,8 @@
 		var navigationBarMode;
 		var value;
 		var value2;
+		var GAS_URL = "http://api.mygasfeed.com/";
+		var GAS_API_KEY = "7ghfjf56rn";
 		
 		function init(){
 			value = "Rochester";
@@ -44,6 +46,9 @@
 		}
 	
 		function getData(){
+			var url = GAS_URL;
+			
+
 			value = document.querySelector("#searchterm").value;
 			value = value.trim();
 			if(value.length < 1) return;
