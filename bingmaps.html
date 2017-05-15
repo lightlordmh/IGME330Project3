@@ -4,11 +4,13 @@
 
 <head>
 	<meta charset="utf-8">
-	<title>Bing Maps Practice</title>
+	<title>Gas Station Finder</title>
 	<style>
 		h1 {
 			margin-bottom: 5px;
 			margin-top: 5px;
+			position: absolute;
+			top: 10px;
 		}
 		#Content {
 			margin-bottom: 2px;
@@ -17,6 +19,7 @@
 		
 		#search {
 			display: inline;
+
 		}
 		
 		#zoomDrop {
@@ -30,10 +33,11 @@
 	<script>
 		window.onload = init;
 		
+		//Attributes
 		var map;
 		var navigationBarMode;
-		var value;
-		var value2;
+		var locBox;
+		var zoomSet;
 		var GAS_URL = "http://api.mygasfeed.com/stations/radius/";
 		var GAS_API_KEY = "7ghfjf56rn";
 		var dist;
@@ -41,15 +45,19 @@
 		var longitude;
 		var latitude;
 
-		
+		//initialize the script
 		function init(){
-			value = "Rochester";
+			//set default values for GUI elements
+			locBox = "Rochester";
 			dist = 5;
 			gastype = "reg";
+			//load the map 
 			loadMapScenario();
+			//attach events to GUI elements
 			document.querySelector("#search").onclick = getData;
 			document.querySelector("#zoomChooser").onchange = changeZoom;
 			document.querySelector("#gastypeChooser").onchange = changeGas;
+			//set up local storage system
 			if (localStorage.getItem("lastplace")){
 				document.querySelector("#searchterm").value = localStorage.getItem("lastplace");
 				if (localStorage.getItem("lastlat") && localStorage.getItem("lastlong")){
@@ -62,12 +70,13 @@
 			if (localStorage.getItem("lastdist")){
 				document.querySelector("#searchterm2").value = localStorage.getItem("lastdist");
 			}
+			//get the center of the map and update map position 
 			var ctr = map.getCenter();
 			latitude = map.getCenter().latitude;
 			longitude = map.getCenter().longitude;
-			document.onclick = updateLoc;
+			document.onclick = updateLoc();
 		}
-		
+		//Updates the global latitude and longitude values
 		function updateLoc(){
 			latitude = map.getCenter().latitude;
 			longitude = map.getCenter().longitude;
@@ -75,41 +84,49 @@
 			localStorage.setItem("lastlong",  longitude);
 			printInfo();
 		}
-	
+		//updates the gastype Global value
 		function changeGas(){
 			gastype = document.querySelector("#gastypeChooser").value;
 			console.log(gastype);
 		}
-		
+		//updates the zoomSet Global value and updates the zoom level of the map
 		function changeZoom(){
-			value2 = document.querySelector("#zoomChooser").value;
-			console.log(value2);
+			zoomSet = document.querySelector("#zoomChooser").value;
+			console.log(zoomSet);
 			map.setView({
-				zoom: parseInt(value2)
+				zoom: parseInt(zoomSet)
 			});
 		}
-	
+		//Main logic function
+		//handles map updates, gets gas station information, and adds pins to the map
 		function getData(){
+			//clear the map and pushpins
 			map.entities.clear();
 			var pushpins = [];
+			//main logic for getting the
 			var xhr = new XMLHttpRequest();
 			xhr.onload = function(){
 
 				// JSON.parse() converts a string to JSON.
  				var myJSON = JSON.parse( xhr.responseText );
 				var gasStations = myJSON.stations;
-				//array of points
+				//loop through the array of gas station
 				for(var i=0;i<gasStations.length;i++){
+					//get a gas station in the list
 					var station = gasStations[i];
-					//logic to get all information 
+					//create a new pushpin at the station's location and add that to the list of pushpins
 					var pushpin = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(station.lat,station.lng));
 					pushpins.push(pushpin);
-				}	
+				}
+				//setup the info box 
 				var infobox = new Microsoft.Maps.Infobox(pushpins[0].getLocation(), { visible: false });
 				infobox.setMap(map);
+				//loop through the pushpins and add infobox to them along with associated station data
 				for (var i = 0; i < pushpins.length; i++) {
+					//get a pushpin and station from their lists
 					var pushpin = pushpins[i];
 					var station = gasStations[i];
+					//based on gas type set the type and price to add to the pushpin
 					var gasPhrase;
 					var gasPrice;
 					switch(gastype){
@@ -135,6 +152,7 @@
 						title: station.station,
 						description: "Address: " + station.address + "<br> Distance: " + station.distance + gasPhrase + gasPrice 
 					};
+					//attach an event to the pushpin and add accociated data
 					Microsoft.Maps.Events.addHandler(pushpin, 'click', function (args) {
 						infobox.setOptions({
 							location: args.target.getLocation(),
@@ -145,21 +163,22 @@
 					});
 				}
 				//add all pushpins to the map
-		
 				map.entities.push(pushpins);
 			}
 
-
-			value = document.querySelector("#searchterm").value;
-			value = value.trim();
-			if(value.length < 1) return;
+			//get the search term and check if the box has data in it
+			locBox = document.querySelector("#searchterm").value;
+			locBox = locBox.trim();
+			if(locBox.length < 1) return;
 			//console.log(value);
+			//set the distance radius to search
 			dist = document.querySelector("#searchterm2").value;
+			//setup the map and load it
 			Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
 				var searchManager = new Microsoft.Maps.Search.SearchManager(map);
 				var requestOptions = {
 					bounds: map.getBounds(),
-					where: value,
+					where: locBox,
 					callback: function (answer, userData) {
 						map.setView({ bounds: answer.results[0].bestView });
 						//map.entities.push(new Microsoft.Maps.Pushpin(answer.results[0].location));
@@ -172,29 +191,29 @@
 				dist = dist.trim();
 				if(dist.length < 1) return;
 				console.log(dist);
+				//set the global latitude and longitude
 				latitude = map.getCenter().latitude;
 				longitude = map.getCenter().longitude;
-				localStorage.setItem("lastplace", value);
+				localStorage.setItem("lastplace", locBox);
 				localStorage.setItem("lastdist", dist);
 				updateLoc();
 			});
+			//build url, open a connection to API, send info and run logic
 			var url = GAS_URL + latitude  +"/"+ longitude +"/"+ dist +"/"+ gastype +"/distance/" + GAS_API_KEY + ".json";
 			console.log(url);
 			xhr.open('GET',url,true);
-			// try to prevent browser caching by sending a header to the server
-			//xhr.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2010 00:00:00 GMT");
 			xhr.send();
 
 		}
-	
+		//load the map from the API
 		function loadMapScenario() {
-		navigationBarMode = Microsoft.Maps.NavigationBarMode;
+			navigationBarMode = Microsoft.Maps.NavigationBarMode;
 			map = new Microsoft.Maps.Map(document.getElementById('myMap'), {
 				credentials: 'y7SZBP21wKo65lBDPlws~HAiXZ226YEBQTxYMbCKUCw~AgYdjoumaTtW8ZZH-xz2x16G5PXiGttwQgZT6glN1rjBILJVUJ02wR6b4pL9-4fu',
 				navigationBarMode: navigationBarMode.compact
 			});
 		}
-		
+		//Debug Function 
 		function printInfo(){
             console.log('Map center: ' + map.getCenter());
             //console.log('Map bounds: ' + map.getBounds());
@@ -213,23 +232,25 @@
 
 <body>
 	<div id='printoutPanel'></div>
-	 <div id="Content"><h1>Gas Station Finder</h1>
-	Around what location? <input id="searchterm" type="text" size="20" maxlength="30" autofocus value="Rochester" /> 
-	Within how many miles? <input id="searchterm2" type="text" size="5" maxlength="10" autofocus value="5" /> 
-	<div id="gastypeDrop" class="dropdown-content">
-	<label>Gas Type:
-			<select id="gastypeChooser">
-				<option value="reg">Regular</option>
-				<option value="mid">MID</option>
-				<option value="pre">PRE</option>
-				<option value="diesel">Diesel</option>
-    		</select>
-    	</label>
+	<div id='myMap' style='width: 99vw; height: 84.8vh;'></div>
+	<div id="Content"><h1>Gas Station Finder</h1>
+		Around what location? <input id="searchterm" type="text" size="20" maxlength="30" autofocus value="Rochester" /> 
+		Within how many miles? <input id="searchterm2" type="text" size="5" maxlength="10" autofocus value="5" /> 
+		<div id="gastypeDrop" class="dropdown-content">
+			<label>Gas Type:
+				<select id="gastypeChooser">
+					<option value="reg">Regular</option>
+					<option value="mid">MID</option>
+					<option value="pre">PRE</option>
+					<option value="diesel">Diesel</option>
+				</select>
+			</label>
+		</div>
+			<button type="button" id="search">Get Gas<br /></button>
 	</div>
-	<button type="button" id="search">Get Gas<br /></button></div>
 	<div class="dropdown">
-  <div id="zoomDrop" class="dropdown-content">
-	<label>Zoom Level:
+  	<div id="zoomDrop" class="dropdown-content">
+		<label>Zoom Level:
 			<select id="zoomChooser">
 				<option value="20">20</option>
 				<option value="15">15</option>
@@ -238,7 +259,6 @@
     		</select>
     	</label>
 	</div>
-    <div id='myMap' style='width: 99vw; height: 84.8vh;'></div>
 </body>
 
 </html>
