@@ -6,26 +6,43 @@
 	<meta charset="utf-8">
 	<title>Gas Station Finder</title>
 	<style>
-		h1 {
+	h1 {
+		margin-bottom: 3px;
+		margin-top: 3px;
+		font-family: Georgia;
+	}
+	#slider1 {
+		margin-bottom: 15px;
+	}
+		#Content {
 			margin-bottom: 5px;
+			margin-left: 20px;
 			margin-top: 5px;
 			position: absolute;
 			top: 10px;
-		}
-		#Content {
-			margin-bottom: 2px;
-			z-index: 1;
+			background-color: white;
+			padding: 15px;
+			border-color: grey;
+			border-style: solid;
+			border-width: 2px;
+			border-radius: 20px;
+			box-shadow: 6px 6px 5px #999999;
+			font-family: Verdana;
 		}
 		
-		#search {
-			display: inline;
-
+		
+		#loc {
+			margin-bottom: 8px;
 		}
 		
-		#zoomDrop {
-			display: block;
-			margin-bottom: 5px;
+		#miles {
+			margin-bottom: 8px;
 		}
+		
+		#gastypeChooser{
+			margin-bottom: 8px;
+		}
+		
 		#myMap{
 			z-index: 0;
 		}
@@ -56,8 +73,10 @@
 			//attach events to GUI elements
 			document.querySelector("#search").onclick = getData;
 			//document.querySelector("#search").onmouseup = updateLoc();
-			document.querySelector("#zoomChooser").onchange = changeZoom;
 			document.querySelector("#gastypeChooser").onchange = changeGas;
+			document.querySelector("#slider1").onchange = function(e){
+			 	changeZoom();
+			 };
 			//set up local storage system
 			if (localStorage.getItem("lastplace")){
 				document.querySelector("#searchterm").value = localStorage.getItem("lastplace");
@@ -98,7 +117,7 @@
 		}
 		//updates the zoomSet Global value and updates the zoom level of the map
 		function changeZoom(){
-			zoomSet = document.querySelector("#zoomChooser").value;
+			zoomSet = document.querySelector("#slider1").value;
 			console.log(zoomSet);
 			map.setView({
 				zoom: parseInt(zoomSet)
@@ -267,10 +286,10 @@
 
 <body>
 	<div id='printoutPanel'></div>
-	<div id='myMap' style='width: 99vw; height: 84.8vh;'></div>
+	<div id='myMap' style='width: 99.2vw; height: 98.2vh;'></div>
 	<div id="Content"><h1>Gas Station Finder</h1>
-		Around what location? <input id="searchterm" type="text" size="20" maxlength="30" autofocus value="Rochester" /> 
-		Within how many miles? <input id="searchterm2" type="text" size="5" maxlength="10" autofocus value="5" /> 
+		<div id="loc">Around what location? <input id="searchterm" type="text" size="20" maxlength="30" autofocus value="Rochester" /></div>
+		<div id="miles">Within how many miles? <input id="searchterm2" type="text" size="5" maxlength="10" autofocus value="5" /> </div>
 		<div id="gastypeDrop" class="dropdown-content">
 			<label>Gas Type:
 				<select id="gastypeChooser">
@@ -280,19 +299,13 @@
 					<option value="diesel">Diesel</option>
 				</select>
 			</label>
+			<div>
+		<label for="slider1">Zoom Level</label>
+			<input id="slider1" type ="range" min ="0" max="20" step ="1" value ="10"/>
+		</div>
 		</div>
 			<button type="button" id="search">Get Gas<br /></button>
-	</div>
-	<div class="dropdown">
-  	<div id="zoomDrop" class="dropdown-content">
-		<label>Zoom Level:
-			<select id="zoomChooser">
-				<option value="20">20</option>
-				<option value="15">15</option>
-				<option value="10">10</option>
-				<option value="5">5</option>
-    		</select>
-    	</label>
+		<div class="dropdown">
 	</div>
 </body>
 
