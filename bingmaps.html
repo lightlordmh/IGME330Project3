@@ -75,21 +75,18 @@
 			var ctr = map.getCenter();
 			latitude = map.getCenter().latitude;
 			longitude = map.getCenter().longitude;
-<<<<<<< HEAD
 			//document.onclick = updateLoc;
 		}
 		
 		function updateLoc(lat, lon){
 			latitude = lat;
 			longitude = lon;
-=======
 			document.onclick = updateLoc();
 		}
 		//Updates the global latitude and longitude values
 		function updateLoc(){
 			latitude = map.getCenter().latitude;
 			longitude = map.getCenter().longitude;
->>>>>>> 6fd81421ef8364f4d96408b21172da9cf4104867
 			localStorage.setItem("lastlat",  latitude);
 			localStorage.setItem("lastlong",  longitude);
 			printInfo();
@@ -110,7 +107,6 @@
 		//Main logic function
 		//handles map updates, gets gas station information, and adds pins to the map
 		function getData(){
-<<<<<<< HEAD
 			value = document.querySelector("#searchterm").value;
 			value = value.trim();
 			if(value.length < 1) return;
@@ -139,9 +135,7 @@
 				localStorage.setItem("lastplace", value);
 				localStorage.setItem("lastdist", dist);
 			});
-=======
 			//clear the map and pushpins
->>>>>>> 6fd81421ef8364f4d96408b21172da9cf4104867
 			map.entities.clear();
 			var pushpins = [];
 			//main logic for getting the
@@ -207,9 +201,6 @@
 				map.entities.push(pushpins);
 			}
 
-<<<<<<< HEAD
-
-=======
 			//get the search term and check if the box has data in it
 			locBox = document.querySelector("#searchterm").value;
 			locBox = locBox.trim();
@@ -243,7 +234,6 @@
 				updateLoc();
 			});
 			//build url, open a connection to API, send info and run logic
->>>>>>> 6fd81421ef8364f4d96408b21172da9cf4104867
 			var url = GAS_URL + latitude  +"/"+ longitude +"/"+ dist +"/"+ gastype +"/distance/" + GAS_API_KEY + ".json";
 			console.log(url);
 			xhr.open('GET',url,true);
