@@ -82,8 +82,6 @@
 			//attach events to GUI elements
 			document.querySelector("#search").onclick = function(e){
 				getData();
-				//updateLoc();
-				//getData();
 			}
 			document.querySelector("#gastypeChooser").onchange = changeGas;
 			document.querySelector("#slider1").onchange = function(e){
@@ -130,18 +128,23 @@
 		//Main logic function
 		//handles map updates, gets gas station information, and adds pins to the map
 		function getData(){
-			value = document.querySelector("#searchterm").value;
-			value = value.trim();
-			if(value.length < 1) return;
+			//get the search term and check if the box has data in it
+			locBox = document.querySelector("#searchterm").value;
+			locBox = locBox.trim();
+			if(locBox.length < 1) return;
 			//console.log(value);
+			//set the distance radius to search
 			dist = document.querySelector("#searchterm2").value;
+			//setup the map and load it
 			Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
 				var searchManager = new Microsoft.Maps.Search.SearchManager(map);
 				var requestOptions = {
 					bounds: map.getBounds(),
-					where: value,
+					where: locBox,
 					callback: function (answer, userData) {
 						map.setView({ bounds: answer.results[0].bestView });
+						//set the global latitude and longitude
+						updateLoc();
 					}
 				};
 				searchManager.geocode(requestOptions);
@@ -150,7 +153,8 @@
 				}
 				dist = dist.trim();
 				if(dist.length < 1) return;
-				localStorage.setItem("lastplace", value);
+				console.log(dist);
+				localStorage.setItem("lastplace", locBox);
 				localStorage.setItem("lastdist", dist);
 			});
 			$("#myMap").fadeOut(1000);
@@ -223,37 +227,6 @@
 				$("#printoutPanel").fadeOut(500);
 				$("#myMap").fadeIn(1000);
 			}
-
-			//get the search term and check if the box has data in it
-			locBox = document.querySelector("#searchterm").value;
-			locBox = locBox.trim();
-			if(locBox.length < 1) return;
-			//console.log(value);
-			//set the distance radius to search
-			dist = document.querySelector("#searchterm2").value;
-			//setup the map and load it
-			Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
-				var searchManager = new Microsoft.Maps.Search.SearchManager(map);
-				var requestOptions = {
-					bounds: map.getBounds(),
-					where: locBox,
-					callback: function (answer, userData) {
-						map.setView({ bounds: answer.results[0].bestView });
-						//set the global latitude and longitude
-						latitude = answer.results[0].location.latitude;
-						longitude = answer.results[0].location.longitude;
-					}
-				};
-				searchManager.geocode(requestOptions);
-				if (isNaN(dist) || parseInt(dist) < 0){
-					return;
-				}
-				dist = dist.trim();
-				if(dist.length < 1) return;
-				console.log(dist);
-				localStorage.setItem("lastplace", locBox);
-				localStorage.setItem("lastdist", dist);
-			});
 			//build url, open a connection to API, send info and run logic
 			var url = GAS_URL + latitude  +"/"+ longitude +"/"+ dist +"/"+ gastype +"/distance/" + GAS_API_KEY + ".json";
 			console.log(url);
