@@ -49,9 +49,11 @@
 			z-index: 0;
 		}
 		#printoutPanel{
-			position: absolute;
 			width: 50%;
 			height: 50%;
+			z-index: 5;
+			display: block;
+			float: right;
 		}
 	</style>
 	<script>
@@ -78,8 +80,11 @@
 			//load the map 
 			loadMapScenario();
 			//attach events to GUI elements
-			document.querySelector("#search").onclick = getData;
-			//document.querySelector("#search").onmouseup = updateLoc();
+			document.querySelector("#search").onclick = function(e){
+				getData();
+				//updateLoc();
+				//getData();
+			}
 			document.querySelector("#gastypeChooser").onchange = changeGas;
 			document.querySelector("#slider1").onchange = function(e){
 			 	changeZoom();
@@ -88,27 +93,19 @@
 			if (localStorage.getItem("lastplace")){
 				document.querySelector("#searchterm").value = localStorage.getItem("lastplace");
 				if (localStorage.getItem("lastlat") && localStorage.getItem("lastlong")){
-				console.log("Set new center!");
 				map.setView({
 					center: new Microsoft.Maps.Location(localStorage.getItem("lastlat"), localStorage.getItem("lastlong")),
-					zoom: 7
+					zoom: 10
 				})}
 			}
 			if (localStorage.getItem("lastdist")){
 				document.querySelector("#searchterm2").value = localStorage.getItem("lastdist");
 			}
 			//get the center of the map and update map position 
-			var ctr = map.getCenter();
 			latitude = map.getCenter().latitude;
 			longitude = map.getCenter().longitude;
-			//document.onclick = updateLoc;
 		}
 		
-		function updateLoc(lat, lon){
-			latitude = lat;
-			longitude = lon;
-			document.onclick = updateLoc();
-		}
 		//Updates the global latitude and longitude values
 		function updateLoc(){
 			latitude = map.getCenter().latitude;
@@ -133,7 +130,6 @@
 		//Main logic function
 		//handles map updates, gets gas station information, and adds pins to the map
 		function getData(){
-<<<<<<< HEAD
 			value = document.querySelector("#searchterm").value;
 			value = value.trim();
 			if(value.length < 1) return;
@@ -146,8 +142,6 @@
 					where: value,
 					callback: function (answer, userData) {
 						map.setView({ bounds: answer.results[0].bestView });
-						updateLoc(answer.results[0].location.latitude, answer.results[0].location.longitude);
-						//map.entities.push(new Microsoft.Maps.Pushpin(answer.results[0].location));
 					}
 				};
 				searchManager.geocode(requestOptions);
@@ -156,17 +150,12 @@
 				}
 				dist = dist.trim();
 				if(dist.length < 1) return;
-				console.log(dist);
-				/*latitude = map.getCenter().latitude;
-				longitude = map.getCenter().longitude;*/
 				localStorage.setItem("lastplace", value);
 				localStorage.setItem("lastdist", dist);
 			});
-=======
 			$("#myMap").fadeOut(1000);
 			document.querySelector("#printoutPanel").innerHTML = "<b>Loading ... </b>";
 			$("#printoutPanel").fadeIn(500);
->>>>>>> 2250556c79e258ceb5801b1cb2fdf8d5500cddd3
 			//clear the map and pushpins
 			map.entities.clear();
 			var pushpins = [];
@@ -250,7 +239,9 @@
 					where: locBox,
 					callback: function (answer, userData) {
 						map.setView({ bounds: answer.results[0].bestView });
-						//map.entities.push(new Microsoft.Maps.Pushpin(answer.results[0].location));
+						//set the global latitude and longitude
+						latitude = answer.results[0].location.latitude;
+						longitude = answer.results[0].location.longitude;
 					}
 				};
 				searchManager.geocode(requestOptions);
@@ -260,19 +251,14 @@
 				dist = dist.trim();
 				if(dist.length < 1) return;
 				console.log(dist);
-				//set the global latitude and longitude
-				latitude = map.getCenter().latitude;
-				longitude = map.getCenter().longitude;
 				localStorage.setItem("lastplace", locBox);
 				localStorage.setItem("lastdist", dist);
-				updateLoc();
 			});
 			//build url, open a connection to API, send info and run logic
 			var url = GAS_URL + latitude  +"/"+ longitude +"/"+ dist +"/"+ gastype +"/distance/" + GAS_API_KEY + ".json";
 			console.log(url);
 			xhr.open('GET',url,true);
 			xhr.send();
-
 		}
 		//load the map from the API
 		function loadMapScenario() {
@@ -285,9 +271,6 @@
 		//Debug Function 
 		function printInfo(){
             console.log('Map center: ' + map.getCenter());
-            //console.log('Map bounds: ' + map.getBounds());
-            //console.log('Map type id: ' + map.getMapTypeId());
-            //console.log('Map zoom level: ' + map.getZoom());
 			console.log('Map latitude: ' +latitude);
 			console.log('Map longitude: ' +longitude);
 			console.log(localStorage.getItem("lastplace"));
