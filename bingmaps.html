@@ -48,6 +48,7 @@
 			gastype = "reg";
 			loadMapScenario();
 			document.querySelector("#search").onclick = getData;
+			//document.querySelector("#search").onmouseup = updateLoc();
 			document.querySelector("#zoomChooser").onchange = changeZoom;
 			document.querySelector("#gastypeChooser").onchange = changeGas;
 			if (localStorage.getItem("lastplace")){
@@ -65,12 +66,12 @@
 			var ctr = map.getCenter();
 			latitude = map.getCenter().latitude;
 			longitude = map.getCenter().longitude;
-			document.onclick = updateLoc;
+			//document.onclick = updateLoc;
 		}
 		
-		function updateLoc(){
-			latitude = map.getCenter().latitude;
-			longitude = map.getCenter().longitude;
+		function updateLoc(lat, lon){
+			latitude = lat;
+			longitude = lon;
 			localStorage.setItem("lastlat",  latitude);
 			localStorage.setItem("lastlong",  longitude);
 			printInfo();
@@ -90,6 +91,34 @@
 		}
 	
 		function getData(){
+			value = document.querySelector("#searchterm").value;
+			value = value.trim();
+			if(value.length < 1) return;
+			//console.log(value);
+			dist = document.querySelector("#searchterm2").value;
+			Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
+				var searchManager = new Microsoft.Maps.Search.SearchManager(map);
+				var requestOptions = {
+					bounds: map.getBounds(),
+					where: value,
+					callback: function (answer, userData) {
+						map.setView({ bounds: answer.results[0].bestView });
+						updateLoc(answer.results[0].location.latitude, answer.results[0].location.longitude);
+						//map.entities.push(new Microsoft.Maps.Pushpin(answer.results[0].location));
+					}
+				};
+				searchManager.geocode(requestOptions);
+				if (isNaN(dist) || parseInt(dist) < 0){
+					return;
+				}
+				dist = dist.trim();
+				if(dist.length < 1) return;
+				console.log(dist);
+				/*latitude = map.getCenter().latitude;
+				longitude = map.getCenter().longitude;*/
+				localStorage.setItem("lastplace", value);
+				localStorage.setItem("lastdist", dist);
+			});
 			map.entities.clear();
 			var pushpins = [];
 			var xhr = new XMLHttpRequest();
@@ -150,34 +179,6 @@
 			}
 
 
-			value = document.querySelector("#searchterm").value;
-			value = value.trim();
-			if(value.length < 1) return;
-			//console.log(value);
-			dist = document.querySelector("#searchterm2").value;
-			Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
-				var searchManager = new Microsoft.Maps.Search.SearchManager(map);
-				var requestOptions = {
-					bounds: map.getBounds(),
-					where: value,
-					callback: function (answer, userData) {
-						map.setView({ bounds: answer.results[0].bestView });
-						//map.entities.push(new Microsoft.Maps.Pushpin(answer.results[0].location));
-					}
-				};
-				searchManager.geocode(requestOptions);
-				if (isNaN(dist) || parseInt(dist) < 0){
-					return;
-				}
-				dist = dist.trim();
-				if(dist.length < 1) return;
-				console.log(dist);
-				latitude = map.getCenter().latitude;
-				longitude = map.getCenter().longitude;
-				localStorage.setItem("lastplace", value);
-				localStorage.setItem("lastdist", dist);
-				updateLoc();
-			});
 			var url = GAS_URL + latitude  +"/"+ longitude +"/"+ dist +"/"+ gastype +"/distance/" + GAS_API_KEY + ".json";
 			console.log(url);
 			xhr.open('GET',url,true);
