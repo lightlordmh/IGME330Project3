@@ -5,6 +5,8 @@
 <head>
 	<meta charset="utf-8">
 	<title>Gas Station Finder</title>
+	<!-- Import jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 	<style>
 		h1 {
 			margin-bottom: 5px;
@@ -28,6 +30,11 @@
 		}
 		#myMap{
 			z-index: 0;
+		}
+		#printoutPanel{
+			position: absolute;
+			width: 50%;
+			height: 50%;
 		}
 	</style>
 	<script>
@@ -100,6 +107,9 @@
 		//Main logic function
 		//handles map updates, gets gas station information, and adds pins to the map
 		function getData(){
+			$("#myMap").fadeOut(1000);
+			document.querySelector("#printoutPanel").innerHTML = "<b>Loading ... </b>";
+			$("#printoutPanel").fadeIn(500);
 			//clear the map and pushpins
 			map.entities.clear();
 			var pushpins = [];
@@ -164,6 +174,8 @@
 				}
 				//add all pushpins to the map
 				map.entities.push(pushpins);
+				$("#printoutPanel").fadeOut(500);
+				$("#myMap").fadeIn(1000);
 			}
 
 			//get the search term and check if the box has data in it
